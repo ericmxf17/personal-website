@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eric Ma</title>
+  <meta name="description" content="Eric Ma — Applied Math–Economics and Computer Science at Brown University.">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="reveal" style="--i: 0">
+      <h1>Eric Ma</h1>
+      <p class="muted">Applied Math–Economics &amp; Computer Science at Brown.</p>
+    </header>
+
+    <section class="reveal" style="--i: 1">
+      <p>
+        I like working where quantitative methods meet real economic questions,
+        from financial-inclusion research to AI tools for finance and policy.
+      </p>
+    </section>
+
+    <section class="reveal" style="--i: 2">
+      <h2>Projects</h2>
+      <ul class="rows">
+        <li>
+          <a class="row" href="https://github.com/ericmxf17/calhacks13">
+            <span>
+              <span class="row-title">Policy Impact Agent</span>
+              <span class="row-desc">Reads a federal bill, forecasts whether it passes, and prices what it would cost a company. Built at CalHacks&nbsp;13.</span>
+            </span>
+            <span class="row-meta">2026</span>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="https://github.com/ericmxf17/snappy">
+            <span>
+              <span class="row-title">Snappy</span>
+              <span class="row-desc">A macOS menubar voice assistant that answers questions across every brokerage account you own.</span>
+            </span>
+            <span class="row-meta">2026</span>
+          </a>
+        </li>
+        <li>
+          <div class="row">
+            <span>
+              <span class="row-title">Mobile Money &amp; Financial Inclusion</span>
+              <span class="row-desc">Seven-country panel study in R. Published in the Princetonian Journal of Science; accepted to the CEA Annual Meetings.</span>
+            </span>
+            <span class="row-meta">2025</span>
+          </div>
+        </li>
+      </ul>
+      <a class="link more" href="https://github.com/ericmxf17">More on GitHub ↗</a>
+    </section>
+
+    <section class="reveal" style="--i: 3">
+      <h2>Experience</h2>
+      <ul class="rows">
+        <li>
+          <div class="row">
+            <span>
+              <span class="row-title">FolioX</span>
+              <span class="row-desc">Research Intern — population-to-insured mortality research for an SOA Research Institute project.</span>
+            </span>
+            <span class="row-meta">2026</span>
+          </div>
+        </li>
+        <li>
+          <div class="row">
+            <span>
+              <span class="row-title">FUSE Society</span>
+              <span class="row-desc">Chief Executive Officer — lead a 30-person team bringing business and economic literacy to 40+ schools and 6,000+ students a year.</span>
+            </span>
+            <span class="row-meta">2023–now</span>
+          </div>
+        </li>
+        <li>
+          <div class="row">
+            <span>
+              <span class="row-title">HOSA Canada</span>
+              <span class="row-desc">National Officer — one of 10 nationally; built competition resources used by 9,000+ students.</span>
+            </span>
+            <span class="row-meta">2025–now</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="reveal" style="--i: 4">
+      <h2>Elsewhere</h2>
+      <ul class="inline">
+        <li><a class="link" href="https://github.com/ericmxf17">GitHub</a></li>
+        <li><a class="link" href="https://www.linkedin.com/in/ericma2/">LinkedIn</a></li>
+        <li><a class="link" href="mailto:ericmxf17@gmail.com">Email</a></li>
+      </ul>
+    </section>
+
+    <footer class="reveal" style="--i: 5">
+      Providence, RI<time id="clock"></time>
+    </footer>
+  </main>
+
+  <script>
+    const clock = document.getElementById("clock");
+    const format = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    const tick = () => { clock.textContent = format.format(new Date()); };
+    tick();
+    setInterval(tick, 10000);
+  </script>
+</body>
+</html>

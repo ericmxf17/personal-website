@@ -1,0 +1,258 @@
+:root {
+  --bg: #fafaf9;
+  --fg: #18181b;
+  --muted: #71717a;
+  --line: #e4e4e7;
+  --accent: #e4572e;
+
+  --serif: "Instrument Serif", Georgia, serif;
+  --sans: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e10;
+    --fg: #ededef;
+    --muted: #8b8b93;
+    --line: #2a2a2e;
+    --accent: #ff7849;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 14vh, 9rem) 1.5rem 3rem;
+}
+
+/* Type */
+
+h1 {
+  font-family: var(--serif);
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+section {
+  margin-top: 3.5rem;
+}
+
+header + section {
+  margin-top: 2rem;
+}
+
+ul {
+  list-style: none;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Rows: projects and experience */
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.row-title {
+  display: inline-block;
+  font-weight: 500;
+  transition: transform 0.3s var(--ease);
+}
+
+.row-desc {
+  display: block;
+  color: var(--muted);
+}
+
+.row-meta {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s var(--ease);
+}
+
+/* Linked rows get an arrow that slides in beside the title. */
+a.row .row-title::after {
+  content: "↗";
+  display: inline-block;
+  margin-left: 0.3em;
+  color: var(--accent);
+  opacity: 0;
+  transform: translate(-0.4em, 0.15em);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+a.row:hover .row-title,
+a.row:focus-visible .row-title {
+  transform: translateX(0.25rem);
+}
+
+a.row:hover .row-title::after,
+a.row:focus-visible .row-title::after {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+a.row:hover .row-meta,
+a.row:focus-visible .row-meta {
+  color: var(--accent);
+}
+
+/* Dim the other rows while one is hovered or focused. */
+.rows > li {
+  transition: opacity 0.3s var(--ease);
+}
+
+@media (hover: hover) {
+  .rows:has(.row:hover) > li:not(:hover) {
+    opacity: 0.35;
+  }
+}
+
+.rows:has(.row:focus-visible) > li:not(:focus-within) {
+  opacity: 0.35;
+}
+
+/* Text links: an accent underline draws in over a faint one. */
+
+.link {
+  color: inherit;
+  text-decoration: none;
+  padding-bottom: 1px;
+  background:
+    linear-gradient(var(--accent), var(--accent)) no-repeat 0 100% / 0 1px,
+    linear-gradient(var(--line), var(--line)) no-repeat 0 100% / 100% 1px;
+  transition: background-size 0.4s var(--ease);
+}
+
+.link:hover,
+.link:focus-visible {
+  background-size: 100% 1px, 100% 1px;
+}
+
+.more {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+/* Footer */
+
+footer {
+  margin-top: 5rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+#clock:not(:empty)::before {
+  content: "·";
+  margin: 0 0.6em;
+}
+
+/* Focus and selection */
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Load-in: sections rise one after another. */
+
+.reveal {
+  animation: rise 0.8s var(--ease) both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+/* Phones: put the year above the title. */
+
+@media (max-width: 30rem) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .row-meta {
+    order: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
