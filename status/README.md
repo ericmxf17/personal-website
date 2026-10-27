@@ -9,7 +9,7 @@ The site shows, in order of priority:
 ## One-time setup (about 5 minutes)
 
 1. Open [script.google.com](https://script.google.com), click **New project**, and replace the starter code with the contents of `status.gs`.
-2. Click the gear icon (**Project Settings**), then under **Script properties** add `SECRET` with a long random phrase. This is the password for setting your status.
+2. Select `setup` in the function dropdown and click **Run**, then allow calendar access. This creates `SECRET`, the password for setting your status. You can find it under **Project Settings → Script properties**.
 3. Click **Deploy → New deployment**, choose the **Web app** type, and set **Execute as: Me** and **Who has access: Anyone**. Deploy, then allow calendar access.
 4. Copy the web app URL (it ends in `/exec`) into `STATUS_URL` in `index.html`.
 

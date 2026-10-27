@@ -68,6 +68,14 @@ function findCalendarStatus() {
   return null;
 }
 
+// Run once from the editor: creates SECRET (see Project Settings → Script properties)
+// and asks for calendar access.
+function setup() {
+  const props = PropertiesService.getScriptProperties();
+  if (!props.getProperty("SECRET")) props.setProperty("SECRET", Utilities.getUuid());
+  console.log(`Calendar status right now: ${findCalendarStatus()}`);
+}
+
 function json(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
 }
