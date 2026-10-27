@@ -86,31 +86,20 @@ ul {
   color: var(--muted);
 }
 
-/* Now: live status from GitHub */
+/* "Currently building ...": live status from GitHub */
 
 .now {
-  margin-top: 2.5rem;
-  padding: 0.9rem 1.1rem;
-  border: 1px solid var(--line);
-  border-radius: 0.75rem;
-}
-
-.now-label {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-bottom: 0.3rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+  margin-top: 1rem;
+  animation: rise 0.8s var(--ease) both;
 }
 
 .dot {
+  display: inline-block;
   position: relative;
   width: 0.4rem;
   height: 0.4rem;
+  margin-right: 0.6rem;
+  vertical-align: 0.15em;
   border-radius: 50%;
   background: var(--muted);
 }
