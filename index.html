@@ -23,11 +23,7 @@
         I like working where quantitative methods meet real economic questions,
         from financial-inclusion research to AI tools for finance and policy.
       </p>
-      <p class="now" hidden>
-        <span class="dot"></span><span id="now-verb">Currently building</span>
-        <a class="link" id="now-repo" href="https://github.com/ericmxf17"></a><span id="now-blurb"></span>.
-        <span class="muted" id="now-time"></span>
-      </p>
+      <p class="now" hidden><span class="dot"></span><span id="now-text"></span></p>
     </section>
 
     <section class="reveal" style="--i: 2">
@@ -122,31 +118,33 @@
     tick();
     setInterval(tick, 10000);
 
-    // "Currently building ...": the most recently pushed public repo, from GitHub's API.
+    // "Currently ___": a live status from the calendar / iPhone shortcut (status/status.gs),
+    // falling back to the most recently pushed public GitHub repo.
+    const STATUS_URL = ""; // Apps Script web app URL, see status/README.md
     const USER = "ericmxf17";
     const SKIP = new Set(["personal-website"]);
-    // Friendly names and blurbs for repos; anything not listed shows its repo name.
-    const PROJECTS = {
-      calhacks13: {
-        name: "Policy Impact Agent",
-        blurb: "an AI agent that reads federal bills and prices what they'd cost a company",
-      },
-      snappy: {
-        name: "Snappy",
-        blurb: "a voice assistant for all your brokerage accounts",
-      },
-    };
-    const CACHE_KEY = "now-v2";
+    // Friendly names for repos; anything not listed shows its repo name.
+    const NAMES = { calhacks13: "Policy Impact Agent", snappy: "Snappy" };
+    const CACHE_KEY = "now-v3";
     const CACHE_MS = 10 * 60 * 1000;
     const ACTIVE_MS = 7 * 24 * 60 * 60 * 1000;
+    const POLL_MS = 60 * 1000;
 
-    async function fetchNow() {
+    async function fetchStatus() {
+      if (!STATUS_URL) return null;
+      const response = await fetch(STATUS_URL);
+      if (!response.ok) return null;
+      return (await response.json()).status || null;
+    }
+
+    async function fetchBuilding() {
       const response = await fetch(`https://api.github.com/users/${USER}/repos?sort=pushed&per_page=10`);
       if (!response.ok) return null;
       const repo = (await response.json()).find((r) => !r.fork && !SKIP.has(r.name));
       if (!repo) return null;
-      const project = PROJECTS[repo.name] || { name: repo.name };
-      return { ...project, url: repo.html_url, date: repo.pushed_at };
+      const data = { name: NAMES[repo.name] || repo.name, url: repo.html_url, date: repo.pushed_at };
+      writeCache(data);
+      return data;
     }
 
     function readCache() {
@@ -164,41 +162,41 @@
       } catch {}
     }
 
-    function timeAgo(date) {
-      const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-      const seconds = (new Date(date) - Date.now()) / 1000;
-      const units = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
-      for (const [unit, size] of units) {
-        if (Math.abs(seconds) >= size) return rtf.format(Math.round(seconds / size), unit);
-      }
-      return "just now";
-    }
-
-    function renderNow(data) {
+    function renderNow(status, building) {
       const now = document.querySelector(".now");
-      const active = Date.now() - new Date(data.date) < ACTIVE_MS;
-      now.classList.toggle("is-active", active);
-      document.getElementById("now-verb").textContent = active ? "Currently building" : "Most recently built";
-      const repo = document.getElementById("now-repo");
-      repo.textContent = data.name;
-      repo.href = data.url;
-      document.getElementById("now-blurb").textContent = data.blurb ? `, ${data.blurb}` : "";
-      document.getElementById("now-time").textContent = `Last pushed ${timeAgo(data.date)}.`;
-      now.hidden = false;
+      const text = document.getElementById("now-text");
+      if (status) {
+        text.textContent = `Currently ${status}.`;
+        now.classList.add("is-active");
+      } else if (building) {
+        const active = Date.now() - new Date(building.date) < ACTIVE_MS;
+        const link = Object.assign(document.createElement("a"), {
+          className: "link",
+          href: building.url,
+          textContent: building.name,
+        });
+        text.replaceChildren(active ? "Currently building " : "Most recently built ", link, ".");
+        now.classList.toggle("is-active", active);
+      }
+      // Nothing to show (APIs down or rate-limited): the line stays hidden.
+      now.hidden = !status && !building;
     }
 
-    (async () => {
-      try {
-        let data = readCache();
-        if (!data) {
-          data = await fetchNow();
-          if (data) writeCache(data);
-        }
-        if (data) renderNow(data);
-      } catch {
-        // API down or rate-limited: the line just stays hidden.
-      }
-    })();
+    let building = null;
+
+    async function refresh() {
+      const [status, repo] = await Promise.allSettled([
+        fetchStatus(),
+        building || readCache() || fetchBuilding(),
+      ]);
+      if (repo.status === "fulfilled" && repo.value) building = repo.value;
+      renderNow(status.status === "fulfilled" ? status.value : null, building);
+    }
+
+    refresh();
+    // Keep the status live while the page is open.
+    setInterval(() => { if (!document.hidden) refresh(); }, POLL_MS);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
   </script>
 </body>
 </html>
