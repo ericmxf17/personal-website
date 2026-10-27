@@ -25,7 +25,13 @@
       </p>
     </section>
 
-    <section class="reveal" style="--i: 2">
+    <section class="now reveal" style="--i: 2" hidden>
+      <p class="now-label"><span class="dot"></span>Now</p>
+      <p><span id="now-verb">Working on</span> <a class="link" id="now-repo" href="https://github.com/ericmxf17"></a></p>
+      <p class="muted" id="now-detail"></p>
+    </section>
+
+    <section class="reveal" style="--i: 3">
       <h2>Projects</h2>
       <ul class="rows">
         <li>
@@ -59,7 +65,7 @@
       <a class="link more" href="https://github.com/ericmxf17">More on GitHub ↗</a>
     </section>
 
-    <section class="reveal" style="--i: 3">
+    <section class="reveal" style="--i: 4">
       <h2>Experience</h2>
       <ul class="rows">
         <li>
@@ -92,7 +98,7 @@
       </ul>
     </section>
 
-    <section class="reveal" style="--i: 4">
+    <section class="reveal" style="--i: 5">
       <h2>Elsewhere</h2>
       <ul class="inline">
         <li><a class="link" href="https://github.com/ericmxf17">GitHub</a></li>
@@ -101,7 +107,7 @@
       </ul>
     </section>
 
-    <footer class="reveal" style="--i: 5">
+    <footer class="reveal" style="--i: 6">
       Providence, RI<time id="clock"></time>
     </footer>
   </main>
@@ -116,6 +122,86 @@
     const tick = () => { clock.textContent = format.format(new Date()); };
     tick();
     setInterval(tick, 10000);
+
+    // "Now": the most recently pushed public repo and its latest commit, from GitHub's API.
+    const USER = "ericmxf17";
+    const SKIP = new Set(["personal-website"]);
+    const NAMES = { calhacks13: "Policy Impact Agent", snappy: "Snappy" };
+    const CACHE_KEY = "now-v1";
+    const CACHE_MS = 10 * 60 * 1000;
+    const ACTIVE_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const github = (path) =>
+      fetch(`https://api.github.com/${path}`).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+
+    async function fetchNow() {
+      const repos = await github(`users/${USER}/repos?sort=pushed&per_page=10`);
+      const repo = repos.find((r) => !r.fork && !SKIP.has(r.name));
+      if (!repo) return null;
+      const [latest] = await github(`repos/${USER}/${repo.name}/commits?per_page=1`);
+      return {
+        name: NAMES[repo.name] || repo.name,
+        url: repo.html_url,
+        message: latest.commit.message.split("\n")[0],
+        date: latest.commit.committer.date,
+      };
+    }
+
+    function readCache() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+        return cached && Date.now() - cached.at < CACHE_MS ? cached.data : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function writeCache(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
+      } catch {}
+    }
+
+    function timeAgo(date) {
+      const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+      const seconds = (new Date(date) - Date.now()) / 1000;
+      const units = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
+      for (const [unit, size] of units) {
+        if (Math.abs(seconds) >= size) return rtf.format(Math.round(seconds / size), unit);
+      }
+      return "just now";
+    }
+
+    // "feat(web): match the demo" -> "Match the demo"
+    function tidy(message) {
+      const text = message.replace(/^\w+(\([^)]*\))?!?:\s*/, "");
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function renderNow(data) {
+      const section = document.querySelector(".now");
+      const active = Date.now() - new Date(data.date) < ACTIVE_MS;
+      section.classList.toggle("is-active", active);
+      document.getElementById("now-verb").textContent = active ? "Working on" : "Last worked on";
+      const repo = document.getElementById("now-repo");
+      repo.textContent = data.name;
+      repo.href = data.url;
+      document.getElementById("now-detail").textContent = `${tidy(data.message)} · ${timeAgo(data.date)}`;
+      section.hidden = false;
+    }
+
+    (async () => {
+      try {
+        let data = readCache();
+        if (!data) {
+          data = await fetchNow();
+          if (data) writeCache(data);
+        }
+        if (data) renderNow(data);
+      } catch {
+        // API down or rate-limited: the section just stays hidden.
+      }
+    })();
   </script>
 </body>
 </html>
