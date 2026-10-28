@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Tells the status script "I'm on my computer" every 5 minutes, but only if the Mac
+  has been used in the last 10 minutes. Nothing runs while the Mac is asleep or off,
+  so late at night the site falls back to "sleeping".
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.itsee.website-status</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>idle=$(ioreg -c IOHIDSystem | awk '/HIDIdleTime/ {print int($NF / 1000000000); exit}'); [ "${idle:-0}" -lt 600 ] &amp;&amp; curl -fsSL --max-time 30 -o /dev/null 'https://script.google.com/macros/s/AKfycbzu0NRdkXXTgvPH6aMCiKpr18ed7bl7yS5VK4R7XbKUXMvQruUHvKUkdauP6DGV41KF/exec?ping=1'</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>300</integer>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

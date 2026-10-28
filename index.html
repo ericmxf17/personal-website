@@ -167,7 +167,7 @@
       const text = document.getElementById("now-text");
       if (status) {
         text.textContent = `Currently ${status}.`;
-        now.classList.add("is-active");
+        now.classList.toggle("is-active", status !== "sleeping"); // no pulse while asleep
       } else if (building) {
         const active = Date.now() - new Date(building.date) < ACTIVE_MS;
         const link = Object.assign(document.createElement("a"), {

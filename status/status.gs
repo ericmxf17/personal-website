@@ -1,11 +1,13 @@
 // Live "currently ___" status for the personal website. Runs as a Google Apps Script web app.
 //
-//   GET                                   -> {"status": "in class"}  (or {"status": null})
+//   GET                                     -> {"status": "in class"}  (or {"status": null})
 //   GET ?key=SECRET&set=eating[&minutes=90] -> manual status; overrides the calendar until it expires
-//   GET ?key=SECRET&set=                  -> clears the manual status
+//   GET ?key=SECRET&set=                    -> clears the manual status
+//   GET ?ping=1                             -> "I'm on my computer"; sent every 5 minutes by the Mac
 //
-// The calendar status comes from whatever is on your Google Calendar (what Notion Calendar shows)
-// right now. Only events matching RULES are shown; everything else stays private.
+// Priority: manual status, then the calendar event happening now, then "sleeping" if it's night
+// and the computer hasn't pinged recently. Only calendar events matching RULES are shown;
+// everything else stays private.
 
 // First match wins, so order matters.
 const RULES = [
@@ -24,9 +26,20 @@ const RULES = [
 const DEFAULT_MINUTES = 120;
 const CALENDAR_CACHE_SECONDS = 60;
 
+const TIME_ZONE = "America/New_York";
+const NIGHT_START_HOUR = 23; // "sleeping" only shows between these hours...
+const NIGHT_END_HOUR = 9;
+const AWAKE_SECONDS = 15 * 60; // ...and only if the computer hasn't pinged for this long.
+
 function doGet(e) {
   const params = e.parameter;
   const props = PropertiesService.getScriptProperties();
+
+  // No key needed: the worst a stranger can do is stop the site from saying "sleeping".
+  if ("ping" in params) {
+    CacheService.getScriptCache().put("awake", "1", AWAKE_SECONDS);
+    return json({ ok: true });
+  }
 
   if ("set" in params) {
     const secret = props.getProperty("SECRET");
@@ -43,7 +56,7 @@ function doGet(e) {
 
   const override = JSON.parse(props.getProperty("OVERRIDE") || "null");
   if (override && override.until > Date.now()) return json({ status: override.status });
-  return json({ status: calendarStatus() });
+  return json({ status: calendarStatus() || nightStatus() });
 }
 
 function calendarStatus() {
@@ -66,6 +79,15 @@ function findCalendarStatus() {
     }
   }
   return null;
+}
+
+function nightStatus() {
+  const hour = Number(Utilities.formatDate(new Date(), TIME_ZONE, "H"));
+  const night = NIGHT_START_HOUR > NIGHT_END_HOUR
+    ? hour >= NIGHT_START_HOUR || hour < NIGHT_END_HOUR
+    : hour >= NIGHT_START_HOUR && hour < NIGHT_END_HOUR;
+  const awake = CacheService.getScriptCache().get("awake") !== null;
+  return night && !awake ? "sleeping" : null;
 }
 
 // Run once from the editor: creates SECRET (see Project Settings → Script properties)

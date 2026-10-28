@@ -26,6 +26,22 @@ In the Shortcuts app, make a shortcut called "Set status":
 
 Put the shortcut on your home screen or Action Button.
 
+## "Sleeping"
+
+Between 11pm and 9am Providence time, the site says "Currently sleeping." if nothing else is set and your Mac hasn't checked in for 15 minutes. The Mac checks in every 5 minutes while you're using it, through a small background job:
+
+```bash
+cp status/com.itsee.website-status.plist ~/Library/LaunchAgents/ && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.itsee.website-status.plist
+```
+
+To remove it:
+
+```bash
+launchctl bootout gui/$(id -u)/com.itsee.website-status && rm ~/Library/LaunchAgents/com.itsee.website-status.plist
+```
+
+The hours are `NIGHT_START_HOUR` and `NIGHT_END_HOUR` in `status.gs`.
+
 ## Changing the rules
 
 Edit `RULES` in the Apps Script editor, then **Deploy → Manage deployments → Edit → New version**. Calendar statuses are cached for 60 seconds.
